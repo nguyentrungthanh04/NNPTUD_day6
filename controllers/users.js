@@ -30,5 +30,19 @@ module.exports = {
         } catch (error) {
             return false
         }
+    },
+    ChangePassword: async function (userId, oldPassword, newPassword) {
+        let user = await userModel.findOne({ _id: userId, isDeleted: false });
+        if (!user) {
+            throw new Error("User not found");
+        }
+        let bcrypt = require('bcrypt');
+        let isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            throw new Error("oldpassword khong dung");
+        }
+        user.password = newPassword;
+        await user.save();
+        return { message: "doi mat khau thanh cong" };
     }
 }

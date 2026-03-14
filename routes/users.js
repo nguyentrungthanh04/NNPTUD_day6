@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-let { validatedResult, CreateUserValidator, ModifyUserValidator } = require("../utils/validator")
+let { validatedResult, CreateUserValidator, ModifyUserValidator, ChangePasswordValidator } = require("../utils/validator")
 let userModel = require("../schemas/users");
 let bcrypt = require('bcrypt')
 let userController = require("../controllers/users");
@@ -52,6 +52,15 @@ router.put("/:id", ModifyUserValidator, validatedResult, async function (req, re
     let populated = await userModel
       .findById(updatedItem._id)
     res.send(populated);
+  } catch (err) {
+    res.status(400).send({ message: err.message });
+  }
+});
+
+router.post("/change-password", checkLogin, ChangePasswordValidator, validatedResult, async function (req, res, next) {
+  try {
+    let result = await userController.ChangePassword(req.user._id, req.body.oldpassword, req.body.newpassword);
+    res.send(result);
   } catch (err) {
     res.status(400).send({ message: err.message });
   }
